@@ -69,6 +69,7 @@ def _clipboard_read_ctrl_a(wm, x, y):
     pyautogui.click(x, y)
     time.sleep(0.03)
     pyautogui.hotkey("ctrl", "a")
+    time.sleep(0.06)  # 必须等 Ctrl+A 选中完成再复制，否则剪贴板为空
     pyautogui.hotkey("ctrl", "c")
     time.sleep(0.03)
     return _get_clipboard()

@@ -5,6 +5,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import pyautogui
 import config
 from automator import reader, writer, clicker
 from ai_client.deepseek_client import generate_code, revise_code
@@ -141,8 +142,8 @@ def run(wm, max_questions=None):
             if ok:
                 success_count += 1
             logger.info(f"进度: 已完成 {count} 题, 正确 {success_count}, 正确率 {success_count/count*100:.1f}%")
-    except KeyboardInterrupt:
-        logger.info("用户中断")
+    except (KeyboardInterrupt, pyautogui.FailSafeException):
+        logger.info("用户中断（Ctrl+C 或鼠标移至四角）")
     except Exception as e:
         logger.error(f"运行异常: {e}")
         raise

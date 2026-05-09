@@ -18,9 +18,9 @@ MAIN_WINDOW_TITLE_PREFIX = "编程题自测--"
 # ==================== 答题参数 ====================
 MAX_RETRIES_PER_QUESTION = 3
 SUBMIT_TIMEOUT = 12
-RESULT_POLL_INTERVAL = 0.3
+RESULT_POLL_INTERVAL = 0.2
 WINDOW_WAIT_TIMEOUT = 30
-QUESTION_SWITCH_DELAY = 0.4
+QUESTION_SWITCH_DELAY = 0.3
 
 # ==================== 题库缓存 ====================
 QUESTION_BANK_FILE = "question_bank.json"

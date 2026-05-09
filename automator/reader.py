@@ -19,7 +19,7 @@ from utils.logger import setup_logger
 
 logger = setup_logger("reader")
 
-pyautogui.PAUSE = 0.03  # 加速：全局动作间隔从默认0.1降为0.03
+pyautogui.PAUSE = 0.01  # 全局动作间隔（0.1→0.03→0.01）
 pytesseract.pytesseract.tesseract_cmd = config.TESSERACT_PATH
 
 
@@ -67,11 +67,10 @@ def _clipboard_read_ctrl_a(wm, x, y):
     """
     wm.activate_main_window()
     pyautogui.click(x, y)
-    time.sleep(0.08)
+    time.sleep(0.03)
     pyautogui.hotkey("ctrl", "a")
-    time.sleep(0.05)
     pyautogui.hotkey("ctrl", "c")
-    time.sleep(0.08)
+    time.sleep(0.03)
     return _get_clipboard()
 
 
@@ -89,11 +88,11 @@ def _clipboard_read_drag(wm, region: dict):
 
     pyautogui.moveTo(x1, y1)
     pyautogui.mouseDown()
-    pyautogui.moveTo(x2, y2, duration=0.15)
+    pyautogui.moveTo(x2, y2, duration=0.3)  # 题目区拖选需要稍慢，防止丢字
     pyautogui.mouseUp()
-    time.sleep(0.08)
+    time.sleep(0.06)
     pyautogui.hotkey("ctrl", "c")
-    time.sleep(0.08)
+    time.sleep(0.06)
     return _get_clipboard()
 
 

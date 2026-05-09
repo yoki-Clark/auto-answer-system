@@ -16,13 +16,10 @@ def write_code(wm, answer_pos, code: str):
     wm.activate_main_window()
 
     pyautogui.click(*answer_pos)
-    time.sleep(0.08)
+    time.sleep(0.03)
     pyautogui.hotkey("ctrl", "a")
-    time.sleep(0.05)
-    code = code.replace("\t", "    ")
-    pyperclip.copy(code)
-    time.sleep(0.05)
+    pyperclip.copy(code.replace("\t", "    "))
     pyautogui.hotkey("ctrl", "v")
-    time.sleep(0.15)
+    time.sleep(0.08)
 
     logger.info(f"已写入代码 ({len(code)} 字符)")

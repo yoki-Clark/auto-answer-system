@@ -2,6 +2,7 @@
 账密.txt
 config.py
 calibration.json
+question_bank.json
 
 # 大型二进制文件
 *.exe

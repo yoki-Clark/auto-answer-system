@@ -137,6 +137,18 @@ def read_question(wm, question_region: dict) -> str:
     return text or ""
 
 
+def read_question_number(wm, number_pos: tuple) -> str:
+    """读取题号（题号框 Ctrl+A 可用，用户确认）"""
+    logger.info("读取题号...")
+    text = _clipboard_read_ctrl_a(wm, number_pos[0], number_pos[1])
+    # 清洗：去空白，如果是 "第X题" 提取数字
+    text = text.strip()
+    # 去掉可能的 "第" "题" 前缀后缀
+    text = text.lstrip("第题").rstrip("题")
+    logger.info(f"题号: '{text}'")
+    return text
+
+
 def read_current_code(wm, answer_pos: tuple) -> str:
     """读取第二栏——已有代码（答案区 Ctrl+A 可用）"""
     logger.info("读取已有代码...")

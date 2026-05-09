@@ -6,7 +6,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from automator.window_mgr import WindowManager
 from automator.reader import (
-    read_question, read_current_code, read_result_text, parse_result
+    read_question_number, read_question, read_current_code,
+    read_result_text, parse_result,
 )
 
 CALIBRATION_FILE = "calibration.json"
@@ -27,6 +28,14 @@ def main():
         return
     wm.main_window = existing
     print(f"✓ 已连接: {existing.window_text()}\n")
+
+    # 测试0: 题号 (Ctrl+A 剪贴板)
+    print("=" * 60)
+    print("测试0: 读取题号 (Ctrl+A 剪贴板)")
+    print("=" * 60)
+    num_pt = (calib["question_number"]["x"], calib["question_number"]["y"])
+    q_number = read_question_number(wm, num_pt)
+    print(f"\n题号: '{q_number}'\n")
 
     # 测试1: 题目 (拖选+剪贴板 → OCR兜底)
     print("=" * 60)

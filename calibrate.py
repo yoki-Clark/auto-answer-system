@@ -34,6 +34,7 @@ REGIONS_2POINT = [
 
 # 单点区域（中心点，用于点击或粘贴）
 POINTS = [
+    ("question_number", "题号框", "显示当前题号的小输入框——可 Ctrl+A 全选复制"),
     ("answer", "答案区域", "第二栏写代码的文本框——点击中心位置即可"),
     ("submit_btn", "提交答案按钮", ""),
     ("next_btn", "下一题按钮", ""),
@@ -109,7 +110,7 @@ def main():
         r = coords[key]
         w, h = r["x2"] - r["x1"], r["y2"] - r["y1"]
         print(f"  {key}: ({r['x1']},{r['y1']}) -> ({r['x2']},{r['y2']})  区域{w}x{h}")
-    for key in ["answer", "submit_btn", "next_btn"]:
+    for key in ["question_number", "answer", "submit_btn", "next_btn"]:
         p = coords[key]
         print(f"  {key}: ({p['x']}, {p['y']})")
 

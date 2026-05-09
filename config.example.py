@@ -16,11 +16,15 @@ LOGIN_WINDOW_TITLE = "课堂管理系统3.1.3-董付国"
 MAIN_WINDOW_TITLE_PREFIX = "编程题自测--"
 
 # ==================== 答题参数 ====================
-MAX_RETRIES_PER_QUESTION = 5
-SUBMIT_TIMEOUT = 15
-RESULT_POLL_INTERVAL = 0.5
+MAX_RETRIES_PER_QUESTION = 3
+SUBMIT_TIMEOUT = 12
+RESULT_POLL_INTERVAL = 0.3
 WINDOW_WAIT_TIMEOUT = 30
-QUESTION_SWITCH_DELAY = 1.5
+QUESTION_SWITCH_DELAY = 0.4
+
+# ==================== 题库缓存 ====================
+QUESTION_BANK_FILE = "question_bank.json"
+SIMILARITY_THRESHOLD = 0.85
 
 # ==================== OCR 配置 ====================
 TESSERACT_PATH = "C:/Program Files/Tesseract-OCR/tesseract.exe"

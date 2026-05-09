@@ -9,11 +9,12 @@ main.py → solver/solver.py → automator/{reader,writer,clicker} + ai_client/d
 ```
 
 - **automator/window_mgr.py**: Find/activate Tkinter windows via pywinauto, login via keyboard+clipboard
-- **automator/reader.py**: Read question (drag-select+clipboard), answer code (Ctrl+A+clipboard), result (Ctrl+A+clipboard), with OCR fallback
+- **automator/reader.py**: Read question number (Ctrl+A), question (drag-select), answer code (Ctrl+A), result (Ctrl+A), with OCR fallback. **Crucial**: Ctrl+A and Ctrl+C must have ≥0.06s delay between them, or clipboard reads empty.
 - **automator/writer.py**: Paste code into answer area via clipboard
 - **automator/clicker.py**: Click submit/next buttons by calibrated coordinates
 - **ai_client/deepseek_client.py**: OpenAI SDK → DeepSeek API (deepseek-chat model)
-- **solver/solver.py**: Loop: read → AI generate → write → submit → check result → correct→next / wrong→revise+retry
+- **solver/solver.py**: Loop: read q-number → bank lookup → (hit→cached answer / miss→AI generate) → write → submit → parse result → correct→next+save / wrong→revise+retry
+- **utils/question_bank.py**: Local JSON cache keyed by question number, difflib similarity ≥85% to verify match
 
 ## Key Technical Constraints
 
@@ -25,6 +26,9 @@ main.py → solver/solver.py → automator/{reader,writer,clicker} + ai_client/d
   - Result area: Ctrl+A works normally
 - **Clipboard is primary, OCR is fallback**: Tesseract with chi_sim+eng for Chinese+English text, used only when clipboard reads fail
 - **DeepSeek API**: Uses OpenAI SDK with base_url="https://api.deepseek.com", model="deepseek-chat"
+- **Result parsing**: Only checks for "正确" keywords (恭喜/答题正确/通过). Everything else → treated as error, full text passed to AI for revision. This handles "代码不符合题目要求" and other non-standard errors.
+- **Speed**: pyautogui.PAUSE=0.01, minimal sleeps. Drag duration 0.3s for question (needs reliability), everything else compressed.
+- **Exit**: Mouse to any screen corner triggers `pyautogui.FailSafeException` (safe exit). Ctrl+C also works.
 - **Proxy**: System has proxy at 127.0.0.1:7890; git push needs `-c http.proxy= -c https.proxy=` to bypass if proxy is down
 
 ## Critical Files (gitignored, must be created by user)
@@ -45,13 +49,20 @@ python test_ocr.py                # verify reading works
 python main.py                    # start auto-answering
 ```
 
-## Important: Prompt Structure
+## Prompt Structure
 
 System prompt instructs DeepSeek to output ONLY code (no markdown, no comments, 4-space indent, use return not print). See `ai_client/prompts.py`. Output is post-processed by `extract_code()` to strip ``` fences if the model ignores instructions.
 
+## Question Bank Cache
+
+- Local `question_bank.json` stores `{q_number: {question, answer}}` (gitignored)
+- Flow: read question number → lookup in bank by number → difflib similarity ≥0.85 → use cached answer (skip AI)
+- After correct AI-generated answer: auto-save to bank
+- Bank answer wrong → fall through to AI revision (bank may be stale)
+
 ## Retry Logic
 
-- Per question: max 5 attempts (configurable in config.py)
-- On wrong answer: error message from result area is fed back to DeepSeek for code revision
+- Per question: max 3 attempts (configurable in config.py)
+- On any non-correct result (including "提交失败" etc.): full error text fed to DeepSeek for revision
 - On timeout (no result after SUBMIT_TIMEOUT seconds): retry
 - After max retries: skip to next question

@@ -19,6 +19,7 @@ from utils.logger import setup_logger
 
 logger = setup_logger("reader")
 
+pyautogui.PAUSE = 0.03  # 加速：全局动作间隔从默认0.1降为0.03
 pytesseract.pytesseract.tesseract_cmd = config.TESSERACT_PATH
 
 
@@ -65,13 +66,12 @@ def _clipboard_read_ctrl_a(wm, x, y):
     适用于 Ctrl+A 能正常全选的控件（答案区、结果区）
     """
     wm.activate_main_window()
-    time.sleep(0.2)
     pyautogui.click(x, y)
-    time.sleep(0.15)
+    time.sleep(0.08)
     pyautogui.hotkey("ctrl", "a")
-    time.sleep(0.1)
+    time.sleep(0.05)
     pyautogui.hotkey("ctrl", "c")
-    time.sleep(0.15)
+    time.sleep(0.08)
     return _get_clipboard()
 
 
@@ -81,26 +81,19 @@ def _clipboard_read_drag(wm, region: dict):
     从区域左上角拖到右下角来选中文本
     """
     wm.activate_main_window()
-    time.sleep(0.2)
 
     x1 = region["x1"]
     y1 = region["y1"]
     x2 = region["x2"]
     y2 = region["y2"]
 
-    # 鼠标拖选
     pyautogui.moveTo(x1, y1)
-    time.sleep(0.1)
     pyautogui.mouseDown()
-    time.sleep(0.05)
-    pyautogui.moveTo(x2, y2, duration=0.3)
-    time.sleep(0.05)
+    pyautogui.moveTo(x2, y2, duration=0.15)
     pyautogui.mouseUp()
-    time.sleep(0.15)
-
-    # 复制
+    time.sleep(0.08)
     pyautogui.hotkey("ctrl", "c")
-    time.sleep(0.15)
+    time.sleep(0.08)
     return _get_clipboard()
 
 
@@ -117,21 +110,15 @@ def read_question(wm, question_region: dict) -> str:
         logger.info(f"题目(拖选): {len(text)} 字符")
         return text
 
-    # 拖选失败，尝试 Ctrl+A 方式（万一有时能行）
     cx, cy = _region_center(question_region)
     text = _clipboard_read_ctrl_a(wm, cx, cy)
     if text.strip():
         logger.info(f"题目(Ctrl+A): {len(text)} 字符")
         return text
 
-    # 剪贴板方式都失败，降级到 OCR
+    # 降级 OCR（仅兜底，一般不会走到）
     logger.info("剪贴板为空，降级到 OCR...")
     image = _screenshot_region(question_region)
-    debug_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "screenshots", "question_debug.png"
-    )
-    image.save(debug_path)
     text = _ocr_from_image(image)
     logger.info(f"题目(OCR): {len(text)} 字符")
     return text or ""
@@ -172,8 +159,6 @@ def read_result_text(wm, result_region: dict) -> str:
         logger.info(f"结果(剪贴板): {text[:120]}")
         return text
 
-    # 降级 OCR
-    logger.info("剪贴板为空，降级到 OCR...")
     image = _screenshot_region(result_region)
     text = _ocr_from_image(image)
     logger.info(f"结果(OCR): {text[:120] if text else '空'}")
@@ -185,22 +170,19 @@ def parse_result(result_text: str) -> tuple:
     Returns:
         (is_correct: bool, error_message: str)
         - 正确: (True, "")
-        - 错误: (False, error_detail)
-        - 不确定: (None, "")
+        - 不正确/报错/不符合要求: (False, error_detail)
+        - 读不到内容: (None, "")
     """
     if not result_text.strip():
         return None, ""
 
     text = result_text.strip()
 
+    # 只判断"正确"，其余一切按错误处理，把全文当报错信息喂给 AI 修正
     correct_keywords = ["恭喜", "答题正确", "答案正确", "通过"]
     for kw in correct_keywords:
         if kw in text:
             return True, ""
 
-    error_keywords = ["答题错误", "答案错误", "执行结果", "Traceback", "错误", "Error"]
-    for kw in error_keywords:
-        if kw in text:
-            return False, text
-
-    return None, text
+    # 任何不是明确正确的结果都视为错误
+    return False, text

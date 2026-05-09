@@ -1,0 +1,26 @@
+# 敏感信息
+账密.txt
+config.py
+calibration.json
+
+# 大型二进制文件
+*.exe
+
+# 原始文档
+readme.txt
+
+# 日志和调试
+automation.log
+screenshots/
+
+# IDE
+.idea/
+__pycache__/
+*.pyc
+*.pyo
+
+# Python
+*.egg-info/
+dist/
+build/
+.env

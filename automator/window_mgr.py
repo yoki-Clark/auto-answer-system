@@ -101,6 +101,7 @@ class WindowManager:
         """激活答题窗口，使其获得焦点"""
         if self.main_window:
             self.main_window.set_focus()
+            time.sleep(0.3)
 
     def get_window_rect(self):
         """获取答题窗口的屏幕矩形 (left, top, right, bottom)"""

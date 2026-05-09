@@ -19,7 +19,7 @@ from utils.logger import setup_logger
 
 logger = setup_logger("reader")
 
-pyautogui.PAUSE = 0.01  # 全局动作间隔（0.1→0.03→0.01）
+pyautogui.PAUSE = 0.1
 pytesseract.pytesseract.tesseract_cmd = config.TESSERACT_PATH
 
 
@@ -66,12 +66,13 @@ def _clipboard_read_ctrl_a(wm, x, y):
     适用于 Ctrl+A 能正常全选的控件（答案区、结果区）
     """
     wm.activate_main_window()
+    time.sleep(0.2)
     pyautogui.click(x, y)
-    time.sleep(0.03)
+    time.sleep(0.15)
     pyautogui.hotkey("ctrl", "a")
-    time.sleep(0.06)  # 必须等 Ctrl+A 选中完成再复制，否则剪贴板为空
+    time.sleep(0.1)
     pyautogui.hotkey("ctrl", "c")
-    time.sleep(0.03)
+    time.sleep(0.15)
     return _get_clipboard()
 
 
@@ -81,6 +82,7 @@ def _clipboard_read_drag(wm, region: dict):
     从区域左上角拖到右下角来选中文本
     """
     wm.activate_main_window()
+    time.sleep(0.2)
 
     x1 = region["x1"]
     y1 = region["y1"]
@@ -88,12 +90,15 @@ def _clipboard_read_drag(wm, region: dict):
     y2 = region["y2"]
 
     pyautogui.moveTo(x1, y1)
+    time.sleep(0.1)
     pyautogui.mouseDown()
-    pyautogui.moveTo(x2, y2, duration=0.3)  # 题目区拖选需要稍慢，防止丢字
+    time.sleep(0.05)
+    pyautogui.moveTo(x2, y2, duration=0.3)
+    time.sleep(0.05)
     pyautogui.mouseUp()
-    time.sleep(0.06)
+    time.sleep(0.15)
     pyautogui.hotkey("ctrl", "c")
-    time.sleep(0.06)
+    time.sleep(0.15)
     return _get_clipboard()
 
 

@@ -14,12 +14,16 @@ logger = setup_logger("writer")
 def write_code(wm, answer_pos, code: str):
     """将代码写入答案区域（第二栏）"""
     wm.activate_main_window()
+    time.sleep(0.2)
 
     pyautogui.click(*answer_pos)
-    time.sleep(0.03)
+    time.sleep(0.2)
     pyautogui.hotkey("ctrl", "a")
-    pyperclip.copy(code.replace("\t", "    "))
+    time.sleep(0.1)
+    code = code.replace("\t", "    ")
+    pyperclip.copy(code)
+    time.sleep(0.1)
     pyautogui.hotkey("ctrl", "v")
-    time.sleep(0.08)
+    time.sleep(0.3)
 
     logger.info(f"已写入代码 ({len(code)} 字符)")
